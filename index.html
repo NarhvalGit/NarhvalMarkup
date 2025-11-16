@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Markdown to PDF Converter - Transform Your Documents</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    
+    <!-- Splitting CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        :root {
+            --primary-bg: #FEFCF8;
+            --secondary-bg: #E8EDE9;
+            --primary-text: #2C2C2C;
+            --secondary-text: #6B6B6B;
+            --accent-color: #C4856A;
+            --accent-hover: #B8775F;
+            --border-color: #E5E5E5;
+            --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.18);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--primary-text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .font-display {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        /* Navigation */
+        .nav-glass {
+            background: rgba(254, 252, 248, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(229, 229, 229, 0.5);
+        }
+        
+        /* Hero Section */
+        .hero-gradient {
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+        }
+        
+        /* Editor Styles */
+        .editor-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--border-color);
+        }
+        
+        .markdown-editor {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            border: none;
+            outline: none;
+            background: transparent;
+        }
+        
+        .preview-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-medium);
+            border: 1px solid var(--border-color);
+            min-height: 600px;
+        }
+        
+        .preview-content {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.7;
+            color: var(--primary-text);
+        }
+        
+        .preview-content h1 {
+            font-size: 2.25rem;
+            font-weight: 700;
+            margin: 1.5rem 0 1rem 0;
+            color: var(--primary-text);
+        }
+        
+        .preview-content h2 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            margin: 1.25rem 0 0.75rem 0;
+            color: var(--primary-text);
+        }
+        
+        .preview-content h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 1rem 0 0.5rem 0;
+            color: var(--primary-text);
+        }
+        
+        .preview-content p {
+            margin: 0.75rem 0;
+        }
+        
+        .preview-content code {
+            background: var(--secondary-bg);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.875rem;
+        }
+        
+        .preview-content pre {
+            background: var(--secondary-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+        
+        .preview-content blockquote {
+            border-left: 4px solid var(--accent-color);
+            padding-left: 1rem;
+            margin: 1rem 0;
+            font-style: italic;
+            color: var(--secondary-text);
+        }
+        
+        .preview-content ul, .preview-content ol {
+            margin: 0.75rem 0;
+            padding-left: 1.5rem;
+        }
+        
+        .preview-content li {
+            margin: 0.25rem 0;
+        }
+        
+        /* Theme Selector */
+        .theme-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        
+        .theme-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-heavy);
+        }
+        
+        .theme-card.active {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+        
+        /* Buttons */
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: var(--primary-text);
+            border: 1px solid var(--border-color);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-light);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-medium);
+        }
+        
+        /* File Upload */
+        .file-upload-area {
+            border: 2px dashed var(--border-color);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: var(--primary-bg);
+        }
+        
+        .file-upload-area.dragover {
+            border-color: var(--accent-color);
+            background: rgba(196, 133, 106, 0.05);
+        }
+        
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Splitting.js animations */
+        .char {
+            display: inline-block;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        .char.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .editor-layout {
+                flex-direction: column;
+            }
+            
+            .preview-content h1 {
+                font-size: 1.875rem;
+            }
+            
+            .preview-content h2 {
+                font-size: 1.5rem;
+            }
+            
+            .preview-content h3 {
+                font-size: 1.25rem;
+            }
+        }
+        
+        /* Loading States */
+        .loading-spinner {
+            border: 2px solid var(--secondary-bg);
+            border-top: 2px solid var(--accent-color);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            background: var(--secondary-bg);
+            height: 4px;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            background: var(--accent-color);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-glass fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="font-display text-xl font-bold text-gray-800">
+                    MarkdownPDF
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#converter" class="text-gray-600 hover:text-gray-800 transition-colors">Converter</a>
+                    <a href="about.html" class="text-gray-600 hover:text-gray-800 transition-colors">About</a>
+                    <a href="help.html" class="text-gray-600 hover:text-gray-800 transition-colors">Help</a>
+                </div>
+                <button class="md:hidden text-gray-600 hover:text-gray-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8">
+                    <h1 class="font-display text-5xl lg:text-6xl leading-tight" data-splitting>
+                        Transform Markdown into Beautiful PDFs
+                    </h1>
+                    <p class="text-xl text-gray-600 leading-relaxed">
+                        Professional document conversion with real-time preview, multiple themes, and instant PDF generation. Perfect for reports, documentation, and creative writing.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button onclick="scrollToConverter()" class="btn-primary">
+                            Start Converting
+                        </button>
+                        <button onclick="loadSample()" class="btn-secondary">
+                            Try Sample
+                        </button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <img src="resources/hero-image.png" alt="Abstract document transformation" class="w-full h-auto rounded-2xl shadow-2xl">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Converter Interface -->
+    <section id="converter" class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="font-display text-3xl lg:text-4xl mb-4">Real-Time Markdown to PDF Converter</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Write markdown on the left, see your beautiful PDF preview on the right. Choose from multiple professional themes.
+                </p>
+            </div>
+
+            <!-- File Upload Area -->
+            <div class="mb-8">
+                <div id="fileUploadArea" class="file-upload-area p-8 text-center">
+                    <svg class="mx-auto w-12 h-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                    </svg>
+                    <p class="text-lg font-medium text-gray-700 mb-2">Drop your markdown file here</p>
+                    <p class="text-gray-500 mb-4">or click to browse</p>
+                    <input type="file" id="fileInput" accept=".md,.markdown" class="hidden">
+                    <button onclick="document.getElementById('fileInput').click()" class="btn-secondary">
+                        Choose File
+                    </button>
+                </div>
+            </div>
+
+            <!-- Theme Selector -->
+            <div class="mb-8">
+                <h3 class="text-lg font-semibold mb-4">Choose Your Theme</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="theme-card active bg-white p-4 rounded-lg border-2 border-gray-200" data-theme="minimal">
+                        <div class="w-full h-24 bg-gray-50 rounded mb-3 flex items-center justify-center">
+                            <span class="text-xs font-medium">Minimal</span>
+                        </div>
+                        <p class="text-sm font-medium">Clean & Simple</p>
+                    </div>
+                    <div class="theme-card bg-white p-4 rounded-lg border-2 border-gray-200" data-theme="academic">
+                        <div class="w-full h-24 bg-amber-50 rounded mb-3 flex items-center justify-center">
+                            <span class="text-xs font-medium">Academic</span>
+                        </div>
+                        <p class="text-sm font-medium">Scholarly Style</p>
+                    </div>
+                    <div class="theme-card bg-white p-4 rounded-lg border-2 border-gray-200" data-theme="business">
+                        <div class="w-full h-24 bg-blue-50 rounded mb-3 flex items-center justify-center">
+                            <span class="text-xs font-medium">Business</span>
+                        </div>
+                        <p class="text-sm font-medium">Professional</p>
+                    </div>
+                    <div class="theme-card bg-white p-4 rounded-lg border-2 border-gray-200" data-theme="creative">
+                        <div class="w-full h-24 bg-purple-50 rounded mb-3 flex items-center justify-center">
+                            <span class="text-xs font-medium">Creative</span>
+                        </div>
+                        <p class="text-sm font-medium">Artistic Style</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Editor and Preview -->
+            <div class="editor-layout grid lg:grid-cols-2 gap-8">
+                <!-- Markdown Editor -->
+                <div class="editor-container">
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-800">Markdown Editor</h3>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="clearEditor()" class="text-sm text-gray-500 hover:text-gray-700">
+                                    Clear
+                                </button>
+                                <button onclick="downloadMarkdown()" class="text-sm text-gray-500 hover:text-gray-700">
+                                    Download MD
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <textarea 
+                            id="markdownEditor" 
+                            class="markdown-editor w-full h-96 resize-none"
+                            placeholder="Start writing your markdown here..."
+                            spellcheck="false"
+                        ></textarea>
+                    </div>
+                </div>
+
+                <!-- Live Preview -->
+                <div class="preview-container">
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-800">Live Preview</h3>
+                            <div class="flex items-center space-x-2">
+                                <button onclick="togglePreviewMode()" class="text-sm text-gray-500 hover:text-gray-700">
+                                    Print View
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <div id="previewContent" class="preview-content">
+                            <div class="text-center text-gray-500 py-12">
+                                <svg class="mx-auto w-16 h-16 mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <p>Your preview will appear here as you type...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
+                <button id="generatePdfBtn" onclick="generatePDF()" class="btn-primary flex items-center space-x-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span>Generate PDF</span>
+                </button>
+                <div class="flex items-center space-x-2 text-sm text-gray-500">
+                    <div id="wordCount" class="font-medium">0 words</div>
+                    <span>•</span>
+                    <div id="charCount" class="font-medium">0 characters</div>
+                </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div id="progressContainer" class="mt-6 hidden">
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <p id="progressText" class="text-sm text-gray-500 mt-2 text-center">Generating PDF...</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="font-display text-3xl lg:text-4xl mb-4">Why Choose Our Converter?</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Professional-grade markdown to PDF conversion with advanced features and beautiful design.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center fade-in">
+                    <div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Real-Time Preview</h3>
+                    <p class="text-gray-600">See your markdown transform into beautiful PDFs instantly as you type.</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center fade-in">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Multiple Themes</h3>
+                    <p class="text-gray-600">Choose from professional themes: Minimal, Academic, Business, and Creative.</p>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-lg text-center fade-in">
+                    <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-2">Privacy First</h3>
+                    <p class="text-gray-600">All processing happens in your browser. Your content never leaves your device.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="font-display text-3xl lg:text-4xl mb-4">Conversion Statistics</h2>
+                <p class="text-lg text-gray-600">Real-time metrics from our community of users.</p>
+            </div>
+            
+            <div id="statsChart" class="w-full h-96"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center">
+                <div class="font-display text-2xl font-bold mb-4">MarkdownPDF</div>
+                <p class="text-gray-400 mb-6">Professional markdown to PDF conversion made simple.</p>
+                <div class="text-sm text-gray-500">
+                    © 2025 MarkdownPDF. All rights reserved. Built with modern web technologies.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
+</body>
+</html>

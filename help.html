@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help & Documentation - Markdown to PDF Converter</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        :root {
+            --primary-bg: #FEFCF8;
+            --secondary-bg: #E8EDE9;
+            --primary-text: #2C2C2C;
+            --secondary-text: #6B6B6B;
+            --accent-color: #C4856A;
+            --accent-hover: #B8775F;
+            --border-color: #E5E5E5;
+            --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.18);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--primary-text);
+            line-height: 1.6;
+        }
+        
+        .font-display {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+        }
+        
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .nav-glass {
+            background: rgba(254, 252, 248, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(229, 229, 229, 0.5);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+        }
+        
+        .doc-section {
+            scroll-margin-top: 100px;
+        }
+        
+        .code-block {
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+        
+        .accordion-item {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            background: white;
+        }
+        
+        .accordion-header {
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+        }
+        
+        .accordion-header:hover {
+            background: var(--secondary-bg);
+        }
+        
+        .accordion-content {
+            padding: 0 1rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .accordion-content.active {
+            padding: 1rem;
+            max-height: 500px;
+        }
+        
+        .search-box {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .search-box:focus-within {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(196, 133, 106, 0.1);
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-light);
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-medium);
+        }
+        
+        .sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+        
+        .sidebar a {
+            display: block;
+            padding: 0.5rem 0;
+            color: var(--secondary-text);
+            text-decoration: none;
+            border-left: 2px solid transparent;
+            padding-left: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .sidebar a:hover, .sidebar a.active {
+            color: var(--accent-color);
+            border-left-color: var(--accent-color);
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: static;
+                margin-bottom: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-glass fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="font-display text-xl font-bold text-gray-800">
+                    <a href="index.html">MarkdownPDF</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-600 hover:text-gray-800 transition-colors">Converter</a>
+                    <a href="about.html" class="text-gray-600 hover:text-gray-800 transition-colors">About</a>
+                    <a href="help.html" class="text-gray-800 font-medium">Help</a>
+                </div>
+                <button class="md:hidden text-gray-600 hover:text-gray-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8">
+                    <h1 class="font-display text-5xl lg:text-6xl leading-tight">
+                        Help & Documentation
+                    </h1>
+                    <p class="text-xl text-gray-600 leading-relaxed">
+                        Everything you need to know about using MarkdownPDF effectively. From getting started to advanced features, find answers to all your questions here.
+                    </p>
+                    <div class="search-box">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                            <input type="text" id="searchInput" placeholder="Search documentation..." class="flex-1 outline-none bg-transparent">
+                        </div>
+                    </div>
+                </div>
+                <div class="relative">
+                    <img src="resources/typography-1.jpg" alt="Documentation and typography" class="w-full h-auto rounded-2xl shadow-2xl">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-4 gap-8">
+                <!-- Sidebar Navigation -->
+                <div class="lg:col-span-1">
+                    <div class="sidebar bg-gray-50 rounded-xl p-6">
+                        <h3 class="font-semibold text-gray-800 mb-4">Quick Navigation</h3>
+                        <nav>
+                            <a href="#getting-started" class="active">Getting Started</a>
+                            <a href="#markdown-syntax">Markdown Syntax</a>
+                            <a href="#themes">Using Themes</a>
+                            <a href="#pdf-generation">PDF Generation</a>
+                            <a href="#file-handling">File Handling</a>
+                            <a href="#keyboard-shortcuts">Keyboard Shortcuts</a>
+                            <a href="#troubleshooting">Troubleshooting</a>
+                            <a href="#faq">FAQ</a>
+                        </nav>
+                    </div>
+                </div>
+
+                <!-- Main Documentation -->
+                <div class="lg:col-span-3">
+                    <!-- Getting Started -->
+                    <div id="getting-started" class="doc-section mb-16 fade-in">
+                        <h2 class="font-display text-3xl mb-6">Getting Started</h2>
+                        
+                        <div class="bg-blue-50 border-l-4 border-blue-400 p-6 mb-8">
+                            <div class="flex items-center mb-2">
+                                <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <h3 class="font-semibold text-blue-800">Quick Start Guide</h3>
+                            </div>
+                            <p class="text-blue-700">Get up and running in under 2 minutes with our simple three-step process.</p>
+                        </div>
+
+                        <div class="space-y-8">
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">1. Add Your Content</h3>
+                                <p class="text-gray-600 mb-4">You have three options to add markdown content:</p>
+                                <ul class="list-disc list-inside space-y-2 text-gray-600 mb-4">
+                                    <li><strong>Type directly</strong> in the markdown editor</li>
+                                    <li><strong>Drag and drop</strong> a .md or .markdown file onto the upload area</li>
+                                    <li><strong>Click to browse</strong> and select a file from your computer</li>
+                                </ul>
+                                <div class="code-block">
+# Start typing your markdown here
+## This is a heading
+This is a paragraph with **bold** and *italic* text.</div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">2. Choose a Theme</h3>
+                                <p class="text-gray-600 mb-4">Select from four professional themes:</p>
+                                <div class="grid md:grid-cols-2 gap-4 mb-4">
+                                    <div class="p-4 bg-gray-50 rounded-lg">
+                                        <h4 class="font-semibold mb-2">🎨 Minimal</h4>
+                                        <p class="text-sm text-gray-600">Clean, simple design perfect for most documents</p>
+                                    </div>
+                                    <div class="p-4 bg-gray-50 rounded-lg">
+                                        <h4 class="font-semibold mb-2">🎓 Academic</h4>
+                                        <p class="text-sm text-gray-600">Scholarly format with serif typography</p>
+                                    </div>
+                                    <div class="p-4 bg-gray-50 rounded-lg">
+                                        <h4 class="font-semibold mb-2">💼 Business</h4>
+                                        <p class="text-sm text-gray-600">Professional style for corporate documents</p>
+                                    </div>
+                                    <div class="p-4 bg-gray-50 rounded-lg">
+                                        <h4 class="font-semibold mb-2">🎭 Creative</h4>
+                                        <p class="text-sm text-gray-600">Artistic design with unique styling</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">3. Generate PDF</h3>
+                                <p class="text-gray-600 mb-4">Click the "Generate PDF" button to create your document:</p>
+                                <ul class="list-disc list-inside space-y-2 text-gray-600">
+                                    <li>Processing happens entirely in your browser</li>
+                                    <li>No data is sent to any server</li>
+                                    <li>PDF downloads automatically when ready</li>
+                                    <li>Progress bar shows conversion status</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Markdown Syntax -->
+                    <div id="markdown-syntax" class="doc-section mb-16 fade-in">
+                        <h2 class="font-display text-3xl mb-6">Markdown Syntax Reference</h2>
+                        
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">Text Formatting</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <h4 class="font-medium mb-2">Headings</h4>
+                                        <div class="code-block"># H1 Heading
+## H2 Heading
+### H3 Heading
+#### H4 Heading</div>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium mb-2">Text Styles</h4>
+                                        <div class="code-block">**Bold text**
+*Italic text*
+***Bold and italic***
+~~Strikethrough~~</div>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium mb-2">Links & Images</h4>
+                                        <div class="code-block">[Link text](https://example.com)
+![Alt text](image.jpg)</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">Lists & Blocks</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <h4 class="font-medium mb-2">Unordered Lists</h4>
+                                        <div class="code-block">- First item
+- Second item
+  - Nested item
+  - Another nested item
+- Third item</div>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium mb-2">Ordered Lists</h4>
+                                        <div class="code-block">1. First item
+2. Second item
+   1. Nested item
+   2. Another nested item
+3. Third item</div>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium mb-2">Blockquotes</h4>
+                                        <div class="code-block">> This is a blockquote
+> It can span multiple lines
+> > And be nested</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8">
+                            <h3 class="text-xl font-semibold mb-4">Code & Tables</h3>
+                            <div class="grid md:grid-cols-2 gap-8">
+                                <div>
+                                    <h4 class="font-medium mb-2">Code Blocks</h4>
+                                    <div class="code-block">```javascript
+function hello() {
+    console.log("Hello, World!");
+}
+```</div>
+                                </div>
+                                <div>
+                                    <h4 class="font-medium mb-2">Tables</h4>
+                                    <div class="code-block">| Header 1 | Header 2 | Header 3 |
+|----------|----------|----------|
+| Cell 1   | Cell 2   | Cell 3   |
+| Cell 4   | Cell 5   | Cell 6   |</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Themes -->
+                    <div id="themes" class="doc-section mb-16 fade-in">
+                        <h2 class="font-display text-3xl mb-6">Using Themes</h2>
+                        
+                        <p class="text-gray-600 mb-6">Themes control the visual appearance of your PDF documents. Each theme includes carefully selected typography, spacing, and color schemes optimized for PDF output.</p>
+
+                        <div class="space-y-6">
+                            <div class="bg-gray-50 p-6 rounded-lg">
+                                <h3 class="text-xl font-semibold mb-3">Theme Selection</h3>
+                                <p class="text-gray-600 mb-4">Click on any theme card to apply it to your document:</p>
+                                <ul class="list-disc list-inside space-y-2 text-gray-600">
+                                    <li>Changes apply instantly to the live preview</li>
+                                    <li>Preview updates in real-time as you type</li>
+                                    <li>Themes are optimized for print and PDF output</li>
+                                    <li>Each theme maintains accessibility standards</li>
+                                </ul>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                                    <h3 class="text-lg font-semibold mb-3">Minimal Theme</h3>
+                                    <p class="text-gray-600 text-sm mb-3">Perfect for most documents with clean, modern styling.</p>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• Inter font family</li>
+                                        <li>• Clean white background</li>
+                                        <li>• Subtle accent colors</li>
+                                        <li>• Professional spacing</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                                    <h3 class="text-lg font-semibold mb-3">Academic Theme</h3>
+                                    <p class="text-gray-600 text-sm mb-3">Scholarly format ideal for research papers and academic work.</p>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• Times New Roman font</li>
+                                        <li>• Warm paper background</li>
+                                        <li>• Traditional styling</li>
+                                        <li>• Formal typography</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                                    <h3 class="text-lg font-semibold mb-3">Business Theme</h3>
+                                    <p class="text-gray-600 text-sm mb-3">Professional style perfect for corporate documents and reports.</p>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• Clean sans-serif fonts</li>
+                                        <li>• Corporate color scheme</li>
+                                        <li>• Professional layout</li>
+                                        <li>• Business-appropriate styling</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-white border border-gray-200 p-6 rounded-lg">
+                                    <h3 class="text-lg font-semibold mb-3">Creative Theme</h3>
+                                    <p class="text-gray-600 text-sm mb-3">Artistic design with unique styling for creative projects.</p>
+                                    <ul class="text-sm text-gray-600 space-y-1">
+                                        <li>• Georgia serif font</li>
+                                        <li>• Creative color palette</li>
+                                        <li>• Artistic typography</li>
+                                        <li>• Unique visual elements</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PDF Generation -->
+                    <div id="pdf-generation" class="doc-section mb-16 fade-in">
+                        <h2 class="font-display text-3xl mb-6">PDF Generation</h2>
+                        
+                        <p class="text-gray-600 mb-6">Our PDF generation process happens entirely in your browser, ensuring privacy and instant results.</p>
+
+                        <div class="space-y-6">
+                            <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6">
+                                <div class="flex items-center mb-2">
+                                    <svg class="w-6 h-6 text-yellow-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                    </svg>
+                                    <h3 class="font-semibold text-yellow-800">Privacy Notice</h3>
+                                </div>
+                                <p class="text-yellow-700">All PDF generation happens locally in your browser. Your content never leaves your device, ensuring complete privacy and security.</p>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">Generation Process</h3>
+                                <ol class="list-decimal list-inside space-y-2 text-gray-600">
+                                    <li>Markdown content is parsed into HTML</li>
+                                    <li>Selected theme styles are applied</li>
+                                    <li>HTML is converted to PDF format</li>
+                                    <li>PDF is automatically downloaded</li>
+                                </ol>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">PDF Settings</h3>
+                                <div class="grid md:grid-cols-2 gap-6">
+                                    <div>
+                                        <h4 class="font-medium mb-2">Page Format</h4>
+                                        <ul class="text-sm text-gray-600 space-y-1">
+                                            <li>• Letter size (8.5" × 11")</li>
+                                            <li>• Portrait orientation</li>
+                                            <li>• 1-inch margins</li>
+                                            <li>• Print-optimized layout</li>
+                                        </ul>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-medium mb-2">Quality Settings</h4>
+                                        <ul class="text-sm text-gray-600 space-y-1">
+                                            <li>• High-resolution output</li>
+                                            <li>• Embedded fonts</li>
+                                            <li>• Optimized images</li>
+                                            <li>• Accessible structure</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- File Handling -->
+                    <div id="file-handling" class="doc-section mb-16 fade-in">
+                        <h2 class="font-display text-3xl mb-6">File Handling</h2>
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">Supported File Types</h3>
+                                <div class="bg-gray-50 p-6 rounded-lg">
+                                    <ul class="space-y-2">
+                                        <li class="flex items-center">
+                                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <strong>.md</strong> - Markdown files
+                                        </li>
+                                        <li class="flex items-center">
+                                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <strong>.markdown</strong> - Markdown files (alternative extension)
+                                        </li>
+                                        <li class="flex items-center">
+                                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                            </svg>
+                                            <strong>.txt</strong> - Plain text files (treated as markdown)
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">Upload Methods</h3>
+                                <div class="grid md:grid-cols-3 gap-6">
+                                    <div class="text-center p-6 bg-blue-50 rounded-lg">
+                                        <svg class="w-12 h-12 text-blue-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                        </svg>
+                                        <h4 class="font-semibold mb-2">Drag & Drop</h4>
+                                        <p class="text-sm text-gray-600">Simply drag files from your computer and drop them on the upload area</p>
+                                    </div>
+                                    <div class="text-center p-6 bg-green-50 rounded-lg">
+                                        <svg class="w-12 h-12 text-green-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                        </svg>
+                                        <h4 class="font-semibold mb-2">File Browser</h4>
+                                        <p class="text-sm text-gray-600">Click the "Choose File" button to browse and select files from your computer</p>
+                                    </div>
+                                    <div class="text-center p-6 bg-purple-50 rounded-lg">
+                                        <svg class="w-12 h-12 text-purple-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        <h4 class="font-semibold mb-2">Direct Input</h4>
+                                        <p class="text-sm text-gray-600">Type or paste your markdown content directly into the editor</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">File Size Limits</h3>
+                                <div class="bg-yellow-50 p-6 rounded-lg">
+                                    <p class="text-gray-600 mb-2">While there's no strict file size limit, we recommend:</p>
+                                    <ul class="list-disc list-inside space-y-1 text-gray-600">
+                                        <li>Files under 10MB for optimal performance</li>
+                                        <li>Documents under 100 pages for best results</li>
+                                        <li>Images optimized for web use</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Keyboard Shortcuts -->
+                    <div id="keyboard-shortcuts" class="doc-section mb-16 fade-in">
+                        <h2 class="font-display text-3xl mb-6">Keyboard Shortcuts</h2>
+                        
+                        <p class="text-gray-600 mb-6">Speed up your workflow with these handy keyboard shortcuts:</p>
+
+                        <div class="grid md:grid-cols-2 gap-8">
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">General Shortcuts</h3>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                                        <span>Generate PDF</span>
+                                        <kbd class="px-2 py-1 bg-white border rounded text-sm font-mono">Ctrl/Cmd + Enter</kbd>
+                                    </div>
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                                        <span>Download Markdown</span>
+                                        <kbd class="px-2 py-1 bg-white border rounded text-sm font-mono">Ctrl/Cmd + S</kbd>
+                                    </div>
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                                        <span>Clear Editor</span>
+                                        <kbd class="px-2 py-1 bg-white border rounded text-sm font-mono">Ctrl/Cmd + Shift + X</kbd>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="text-xl font-semibold mb-4">Editor Shortcuts</h3>
+                                <div class="space-y-3">
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                                        <span>Bold Text</span>
+                                        <kbd class="px-2 py-1 bg-white border rounded text-sm font-mono">Ctrl/Cmd + B</kbd>
+                                    </div>
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                                        <span>Italic Text</span>
+                                        <kbd class="px-2 py-1 bg-white border rounded text-sm font-mono">Ctrl/Cmd + I</kbd>
+                                    </div>
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                                        <span>Insert Link</span>
+                                        <kbd class="px-2 py-1 bg-white border rounded text-sm font-mono">Ctrl/Cmd + K</kbd>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Troubleshooting -->
+                    <div id="troubleshooting" class="doc-section mb-16 fade-in">
+                        <h2 class="font-display text-3xl mb-6">Troubleshooting</h2>
+                        
+                        <p class="text-gray-600 mb-6">Common issues and their solutions:</p>
+
+                        <div class="space-y-6">
+                            <div class="accordion-item">
+                                <div class="accordion-header" onclick="toggleAccordion(this)">
+                                    <h3 class="font-semibold">PDF Generation Fails or Times Out</h3>
+                                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                                <div class="accordion-content">
+                                    <div class="space-y-3">
+                                        <p><strong>Problem:</strong> PDF generation takes too long or fails completely.</p>
+                                        <p><strong>Solutions:</strong></p>
+                                        <ul class="list-disc list-inside space-y-1 text-gray-600">
+                                            <li>Try generating with a smaller document first</li>
+                                            <li>Reduce the number of images or optimize image sizes</li>
+                                            <li>Close other browser tabs to free up memory</li>
+                                            <li>Use a different browser (Chrome recommended)</li>
+                                            <li>Check if your browser is up to date</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <div class="accordion-header" onclick="toggleAccordion(this)">
+                                    <h3 class="font-semibold">Markdown Not Rendering Correctly</h3>
+                                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                                <div class="accordion-content">
+                                    <div class="space-y-3">
+                                        <p><strong>Problem:</strong> Markdown syntax doesn't appear correctly in the preview.</p>
+                                        <p><strong>Solutions:</strong></p>
+                                        <ul class="list-disc list-inside space-y-1 text-gray-600">
+                                            <li>Check for proper markdown syntax</li>
+                                            <li>Ensure there's a space after # symbols in headings</li>
+                                            <li>Verify list items have proper indentation</li>
+                                            <li>Check that code blocks have closing backticks</li>
+                                            <li>Use our sample content as a reference</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <div class="accordion-header" onclick="toggleAccordion(this)">
+                                    <h3 class="font-semibold">File Upload Not Working</h3>
+                                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                                <div class="accordion-content">
+                                    <div class="space-y-3">
+                                        <p><strong>Problem:</strong> Files won't upload or appear in the editor.</p>
+                                        <p><strong>Solutions:</strong></p>
+                                        <ul class="list-disc list-inside space-y-1 text-gray-600">
+                                            <li>Ensure the file has a .md or .markdown extension</li>
+                                            <li>Try using a different upload method</li>
+                                            <li>Check that the file isn't corrupted</li>
+                                            <li>Verify the file isn't too large (over 10MB)</li>
+                                            <li>Try refreshing the page and uploading again</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <div class="accordion-header" onclick="toggleAccordion(this)">
+                                    <h3 class="font-semibold">Theme Changes Not Applying</h3>
+                                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                                <div class="accordion-content">
+                                    <div class="space-y-3">
+                                        <p><strong>Problem:</strong> Theme changes don't appear in the preview.</p>
+                                        <p><strong>Solutions:</strong></p>
+                                        <ul class="list-disc list-inside space-y-1 text-gray-600">
+                                            <li>Ensure JavaScript is enabled in your browser</li>
+                                            <li>Try clicking the theme card again</li>
+                                            <li>Refresh the page and try again</li>
+                                            <li>Check if your browser blocks certain scripts</li>
+                                            <li>Try using a different browser</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FAQ -->
+                    <div id="faq" class="doc-section mb-16 fade-in">
+                        <h2 class="font-display text-3xl mb-6">Frequently Asked Questions</h2>
+                        
+                        <div class="space-y-6">
+                            <div class="accordion-item">
+                                <div class="accordion-header" onclick="toggleAccordion(this)">
+                                    <h3 class="font-semibold">Is my content secure and private?</h3>
+                                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                                <div class="accordion-content">
+                                    <p class="text-gray-600">Absolutely! All processing happens entirely in your browser. Your content never leaves your device, and we don't store or transmit any of your data to external servers. This ensures complete privacy and security.</p>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <div class="accordion-header" onclick="toggleAccordion(this)">
+                                    <h3 class="font-semibold">Can I use this tool offline?</h3>
+                                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                                <div class="accordion-content">
+                                    <p class="text-gray-600">Yes! Once the page is loaded, you can use the converter offline. All the necessary code is loaded into your browser, so you don't need an internet connection to convert markdown to PDF.</p>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <div class="accordion-header" onclick="toggleAccordion(this)">
+                                    <h3 class="font-semibold">What browsers are supported?</h3>
+                                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                                <div class="accordion-content">
+                                    <p class="text-gray-600">We support all modern browsers including Chrome, Firefox, Safari, and Edge. For the best experience, we recommend using the latest version of Chrome or Firefox, as they offer the best performance for PDF generation.</p>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <div class="accordion-header" onclick="toggleAccordion(this)">
+                                    <h3 class="font-semibold">Are there any file size limits?</h3>
+                                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                                <div class="accordion-content">
+                                    <p class="text-gray-600">While there's no strict file size limit, we recommend files under 10MB for optimal performance. Very large documents (over 100 pages) may take longer to process and could potentially cause browser memory issues on older devices.</p>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <div class="accordion-header" onclick="toggleAccordion(this)">
+                                    <h3 class="font-semibold">Can I customize the themes?</h3>
+                                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                                <div class="accordion-content">
+                                    <p class="text-gray-600">Currently, we offer four pre-built themes (Minimal, Academic, Business, and Creative) that are carefully designed for different use cases. Custom theme creation is a feature we're considering for future updates.</p>
+                                </div>
+                            </div>
+
+                            <div class="accordion-item">
+                                <div class="accordion-header" onclick="toggleAccordion(this)">
+                                    <h3 class="font-semibold">Is this tool free to use?</h3>
+                                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    </svg>
+                                </div>
+                                <div class="accordion-content">
+                                    <p class="text-gray-600">Yes! MarkdownPDF is completely free to use. There are no hidden costs, subscriptions, or limitations. We believe in making professional document creation accessible to everyone.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-16 bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h2 class="font-display text-3xl lg:text-4xl mb-4">Ready to Start Converting?</h2>
+            <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                Put your new knowledge to work. Start creating beautiful PDFs from your markdown content today.
+            </p>
+            <a href="index.html" class="btn-primary">
+                Try the Converter
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center">
+                <div class="font-display text-2xl font-bold mb-4">MarkdownPDF</div>
+                <p class="text-gray-400 mb-6">Professional markdown to PDF conversion made simple.</p>
+                <div class="text-sm text-gray-500">
+                    © 2025 MarkdownPDF. All rights reserved. Built with modern web technologies.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            // Scroll animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Smooth scrolling for sidebar links
+            document.querySelectorAll('.sidebar a').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                        
+                        // Update active link
+                        document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            // Search functionality
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const sections = document.querySelectorAll('.doc-section');
+                
+                sections.forEach(section => {
+                    const text = section.textContent.toLowerCase();
+                    if (query === '' || text.includes(query)) {
+                        section.style.display = 'block';
+                        // Highlight matching text
+                        highlightText(section, query);
+                    } else {
+                        section.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Accordion functionality
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('svg');
+            
+            // Close all other accordions
+            document.querySelectorAll('.accordion-content').forEach(acc => {
+                if (acc !== content) {
+                    acc.classList.remove('active');
+                    acc.previousElementSibling.querySelector('svg').style.transform = 'rotate(0deg)';
+                }
+            });
+            
+            // Toggle current accordion
+            content.classList.toggle('active');
+            
+            if (content.classList.contains('active')) {
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Highlight search text
+        function highlightText(element, query) {
+            if (!query) return;
+            
+            const walker = document.createTreeWalker(
+                element,
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
+            
+            const textNodes = [];
+            let node;
+            while (node = walker.nextNode()) {
+                textNodes.push(node);
+            }
+            
+            textNodes.forEach(textNode => {
+                const text = textNode.textContent;
+                const regex = new RegExp(`(${query})`, 'gi');
+                if (regex.test(text)) {
+                    const highlightedText = text.replace(regex, '<mark class="bg-yellow-200">$1</mark>');
+                    const span = document.createElement('span');
+                    span.innerHTML = highlightedText;
+                    textNode.parentNode.replaceChild(span, textNode);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

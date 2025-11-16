@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Markdown to PDF Converter</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        :root {
+            --primary-bg: #FEFCF8;
+            --secondary-bg: #E8EDE9;
+            --primary-text: #2C2C2C;
+            --secondary-text: #6B6B6B;
+            --accent-color: #C4856A;
+            --accent-hover: #B8775F;
+            --border-color: #E5E5E5;
+            --shadow-light: 0 2px 8px rgba(0, 0, 0, 0.06);
+            --shadow-medium: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-heavy: 0 8px 32px rgba(0, 0, 0, 0.18);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--primary-bg);
+            color: var(--primary-text);
+            line-height: 1.6;
+        }
+        
+        .font-display {
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+        }
+        
+        .nav-glass {
+            background: rgba(254, 252, 248, 0.85);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(229, 229, 229, 0.5);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+        }
+        
+        .feature-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-heavy);
+        }
+        
+        .tech-stack-item {
+            transition: all 0.2s ease;
+        }
+        
+        .tech-stack-item:hover {
+            transform: scale(1.05);
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: var(--shadow-light);
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-medium);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav-glass fixed top-0 left-0 right-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="font-display text-xl font-bold text-gray-800">
+                    <a href="index.html">MarkdownPDF</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-600 hover:text-gray-800 transition-colors">Converter</a>
+                    <a href="about.html" class="text-gray-800 font-medium">About</a>
+                    <a href="help.html" class="text-gray-600 hover:text-gray-800 transition-colors">Help</a>
+                </div>
+                <button class="md:hidden text-gray-600 hover:text-gray-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-gradient pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="space-y-8">
+                    <h1 class="font-display text-5xl lg:text-6xl leading-tight">
+                        About MarkdownPDF
+                    </h1>
+                    <p class="text-xl text-gray-600 leading-relaxed">
+                        We're passionate about making document creation beautiful, efficient, and accessible to everyone. Our mission is to bridge the gap between simple markdown writing and professional PDF presentation.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="index.html" class="btn-primary">
+                            Try the Converter
+                        </a>
+                    </div>
+                </div>
+                <div class="relative">
+                    <img src="resources/workspace-1.jpg" alt="Modern workspace" class="w-full h-auto rounded-2xl shadow-2xl">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent rounded-2xl"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="font-display text-3xl lg:text-4xl mb-4">Our Mission</h2>
+                <p class="text-lg text-gray-600 max-w-3xl mx-auto">
+                    We believe that creating beautiful, professional documents should be simple and accessible to everyone, regardless of technical expertise.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="text-center fade-in">
+                    <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Simplicity</h3>
+                    <p class="text-gray-600">Complex tools shouldn't be required to create beautiful documents. We make professional PDF creation as simple as writing plain text.</p>
+                </div>
+
+                <div class="text-center fade-in">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Efficiency</h3>
+                    <p class="text-gray-600">Real-time preview and instant conversion mean you can focus on your content, not the technical details of document formatting.</p>
+                </div>
+
+                <div class="text-center fade-in">
+                    <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-semibold mb-3">Accessibility</h3>
+                    <p class="text-gray-600">We believe great tools should work for everyone. Our interface is designed to be intuitive, inclusive, and work across all devices.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Deep Dive -->
+    <section class="py-16 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="font-display text-3xl lg:text-4xl mb-4">What Makes Us Different</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    We've built our converter with modern web technologies and user-centric design principles.
+                </p>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-12 items-center mb-16">
+                <div class="fade-in">
+                    <h3 class="text-2xl font-semibold mb-4">Real-Time Preview</h3>
+                    <p class="text-gray-600 mb-6">
+                        See your markdown transform into beautifully formatted PDFs instantly. Our advanced parsing engine updates the preview as you type, with a 300ms debounce to ensure smooth performance even with large documents.
+                    </p>
+                    <ul class="space-y-2 text-gray-600">
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Live syntax highlighting
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Theme-aware preview
+                        </li>
+                        <li class="flex items-center">
+                            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            Print layout simulation
+                        </li>
+                    </ul>
+                </div>
+                <div class="fade-in">
+                    <img src="resources/workspace-2.jpg" alt="Editor interface" class="w-full h-auto rounded-xl shadow-lg">
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-12 items-center mb-16">
+                <div class="fade-in order-2 lg:order-1">
+                    <img src="resources/typography-1.jpg" alt="Theme examples" class="w-full h-auto rounded-xl shadow-lg">
+                </div>
+                <div class="fade-in order-1 lg:order-2">
+                    <h3 class="text-2xl font-semibold mb-4">Professional Themes</h3>
+                    <p class="text-gray-600 mb-6">
+                        Choose from four carefully crafted themes designed for different use cases. Each theme includes optimized typography, spacing, and color schemes that work beautifully in PDF format.
+                    </p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-white rounded-lg border border-gray-200">
+                            <h4 class="font-semibold text-gray-800 mb-1">Minimal</h4>
+                            <p class="text-sm text-gray-600">Clean and simple</p>
+                        </div>
+                        <div class="p-4 bg-white rounded-lg border border-gray-200">
+                            <h4 class="font-semibold text-gray-800 mb-1">Academic</h4>
+                            <p class="text-sm text-gray-600">Scholarly format</p>
+                        </div>
+                        <div class="p-4 bg-white rounded-lg border border-gray-200">
+                            <h4 class="font-semibold text-gray-800 mb-1">Business</h4>
+                            <p class="text-sm text-gray-600">Professional style</p>
+                        </div>
+                        <div class="p-4 bg-white rounded-lg border border-gray-200">
+                            <h4 class="font-semibold text-gray-800 mb-1">Creative</h4>
+                            <p class="text-sm text-gray-600">Artistic design</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid lg:grid-cols-2 gap-12 items-center">
+                <div class="fade-in">
+                    <h3 class="text-2xl font-semibold mb-4">Privacy-First Architecture</h3>
+                    <p class="text-gray-600 mb-6">
+                        All processing happens entirely in your browser. Your documents and content never leave your device, ensuring complete privacy and security. This also means our tool works offline and doesn't require any server infrastructure.
+                    </p>
+                    <div class="space-y-4">
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-1">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-1">No Data Transmission</h4>
+                                <p class="text-sm text-gray-600">Everything stays on your device</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-1">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-1">Works Offline</h4>
+                                <p class="text-sm text-gray-600">No internet connection required</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3 mt-1">
+                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold mb-1">Instant Results</h4>
+                                <p class="text-sm text-gray-600">No waiting for server processing</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="fade-in">
+                    <img src="resources/texture-1.jpg" alt="Privacy and security" class="w-full h-auto rounded-xl shadow-lg">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Technology Stack -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12">
+                <h2 class="font-display text-3xl lg:text-4xl mb-4">Built with Modern Technologies</h2>
+                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Our converter leverages the latest web technologies to deliver a fast, reliable, and beautiful user experience.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+                <div class="tech-stack-item bg-gray-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl mb-2">📄</div>
+                    <div class="text-sm font-medium">Marked.js</div>
+                </div>
+                <div class="tech-stack-item bg-gray-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl mb-2">📊</div>
+                    <div class="text-sm font-medium">jsPDF</div>
+                </div>
+                <div class="tech-stack-item bg-gray-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl mb-2">🎨</div>
+                    <div class="text-sm font-medium">Anime.js</div>
+                </div>
+                <div class="tech-stack-item bg-gray-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl mb-2">📈</div>
+                    <div class="text-sm font-medium">ECharts</div>
+                </div>
+                <div class="tech-stack-item bg-gray-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl mb-2">🎯</div>
+                    <div class="text-sm font-medium">Splitting.js</div>
+                </div>
+                <div class="tech-stack-item bg-gray-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl mb-2">🎪</div>
+                    <div class="text-sm font-medium">Splide</div>
+                </div>
+                <div class="tech-stack-item bg-gray-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl mb-2">🎨</div>
+                    <div class="text-sm font-medium">Tailwind</div>
+                </div>
+                <div class="tech-stack-item bg-gray-50 p-4 rounded-lg text-center">
+                    <div class="text-2xl mb-2">⚡</div>
+                    <div class="text-sm font-medium">HTML5</div>
+                </div>
+            </div>
+
+            <div class="mt-12 text-center">
+                <div id="techChart" class="w-full h-96"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="py-16 bg-gray-900 text-white">
+        <div class="max-w-7xl mx-auto px-6 text-center">
+            <h2 class="font-display text-3xl lg:text-4xl mb-4">Ready to Transform Your Documents?</h2>
+            <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                Experience the power of professional markdown to PDF conversion. Start creating beautiful documents today.
+            </p>
+            <a href="index.html" class="btn-primary">
+                Start Converting Now
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center">
+                <div class="font-display text-2xl font-bold mb-4">MarkdownPDF</div>
+                <p class="text-gray-400 mb-6">Professional markdown to PDF conversion made simple.</p>
+                <div class="text-sm text-gray-500">
+                    © 2025 MarkdownPDF. All rights reserved. Built with modern web technologies.
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize scroll animations
+        document.addEventListener('DOMContentLoaded', () => {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Initialize technology usage chart
+            const techChart = echarts.init(document.getElementById('techChart'));
+            
+            const techOption = {
+                title: {
+                    text: 'Technology Stack Performance',
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 18,
+                        fontWeight: 'normal',
+                        color: '#2C2C2C'
+                    }
+                },
+                tooltip: {
+                    trigger: 'item'
+                },
+                series: [
+                    {
+                        name: 'Usage',
+                        type: 'pie',
+                        radius: ['40%', '70%'],
+                        avoidLabelOverlap: false,
+                        itemStyle: {
+                            borderRadius: 10,
+                            borderColor: '#fff',
+                            borderWidth: 2
+                        },
+                        label: {
+                            show: false,
+                            position: 'center'
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: 16,
+                                fontWeight: 'bold'
+                            }
+                        },
+                        labelLine: {
+                            show: false
+                        },
+                        data: [
+                            { value: 35, name: 'Markdown Processing', itemStyle: { color: '#C4856A' } },
+                            { value: 25, name: 'PDF Generation', itemStyle: { color: '#6B6B6B' } },
+                            { value: 20, name: 'UI Animations', itemStyle: { color: '#E8EDE9' } },
+                            { value: 12, name: 'Data Visualization', itemStyle: { color: '#2C2C2C' } },
+                            { value: 8, name: 'File Handling', itemStyle: { color: '#E5E5E5' } }
+                        ]
+                    }
+                ]
+            };
+            
+            techChart.setOption(techOption);
+
+            // Make chart responsive
+            window.addEventListener('resize', () => {
+                techChart.resize();
+            });
+        });
+    </script>
+</body>
+</html>
