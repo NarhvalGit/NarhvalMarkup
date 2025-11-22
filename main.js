@@ -449,12 +449,7 @@ class MarkdownPDFConverter {
             
             // Calculate scale
             const imgWidth = contentWidth;
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            
-            let heightLeft = imgHeight;
-            let position = 0;
-            let pageNumber = 0;
-            
+
             // TEST: Add visible text first (we know this works)
             pdf.setFontSize(12);
             pdf.setTextColor(255, 0, 0); // Red color so it's obvious
