@@ -330,42 +330,6 @@ class MarkdownPDFConverter {
     }
 
     async generatePDF() {
-        console.log('=== ABSOLUTE MINIMAL jsPDF TEST ===');
-
-        try {
-            const { jsPDF } = window.jspdf;
-            console.log('1. jsPDF loaded:', typeof jsPDF, jsPDF);
-
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
-            console.log('2. PDF instance created');
-
-            // Add simple text
-            pdf.setFontSize(16);
-            pdf.text('MINIMAL TEST - Can you see this?', 20, 20);
-            pdf.text('Line 2 - Hello World', 20, 40);
-            pdf.text('Line 3 - Testing 123', 20, 60);
-            console.log('3. Text added');
-
-            // Save
-            const fileName = 'MINIMAL_TEST.pdf';
-            pdf.save(fileName);
-            console.log('4. PDF saved as:', fileName);
-
-            this.showNotification('Minimal test PDF saved - check if you can see the text!', 'success');
-            return;
-
-        } catch (error) {
-            console.error('MINIMAL TEST ERROR:', error);
-            this.showNotification('Error: ' + error.message, 'error');
-        }
-
-        return; // Stop here for testing
-
-        // === ORIGINAL CODE DISABLED FOR TESTING ===
         if (!this.currentContent.trim()) {
             this.showNotification('Please enter some markdown content first.', 'warning');
             return;
@@ -483,96 +447,55 @@ class MarkdownPDFConverter {
             const contentWidth = pageWidth - (2 * margin);
             const contentHeight = pageHeight - (2 * margin);
             
-            // ULTRA SIMPLE TEST: Just add the whole canvas directly
-            console.log('=== SIMPLE TEST: Adding full canvas to PDF ===');
-            const imgData = canvas.toDataURL('image/jpeg', 0.95); // Try JPEG instead of PNG
-            console.log('Image data length:', imgData.length);
-            console.log('Image data preview:', imgData.substring(0, 100));
-
-            // Just fit it on one page, let it overflow if needed
+            // Calculate scale
             const imgWidth = contentWidth;
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            
+            let heightLeft = imgHeight;
+            let position = 0;
+            let pageNumber = 0;
+            
+            // TEST: Add visible text first (we know this works)
+            pdf.setFontSize(12);
+            pdf.setTextColor(255, 0, 0); // Red color so it's obvious
+            pdf.text('=== YOUR MARKDOWN CONTENT BELOW ===', margin, margin + 5);
 
-            console.log('Adding image at:', {
-                x: margin,
-                y: margin,
-                width: imgWidth,
-                height: Math.min(imgHeight, contentHeight)
-            });
+            // Add the canvas image below the text
+            const imgData = canvas.toDataURL('image/png', 1.0);
+            console.log('Canvas as PNG, length:', imgData.length);
 
-            // TEST 1: Show image in browser to verify it's valid
-            const testImg = document.createElement('img');
-            testImg.src = imgData;
-            testImg.style.maxWidth = '200px';
-            testImg.style.border = '2px solid red';
-            testImg.style.position = 'fixed';
-            testImg.style.top = '10px';
-            testImg.style.right = '10px';
-            testImg.style.zIndex = '10000';
-            document.body.appendChild(testImg);
-            console.log('🖼️ Test image added to page (top-right corner)');
+            // Calculate how much space we need
+            const textHeight = 10; // Space for our test text
+            const availableHeight = contentHeight - textHeight;
+            const imgHeight = Math.min((canvas.height * imgWidth) / canvas.width, availableHeight);
 
-            // TEST 2: Add text to PDF (to verify PDF generation works)
-            pdf.setFontSize(20);
-            pdf.text('TEST TEXT - Can you see this?', 20, 20);
-            console.log('📝 Added test text to PDF');
-
-            // TEST 3: Try adding the image
             try {
-                pdf.addImage(imgData, 'JPEG', margin, margin, imgWidth, Math.min(imgHeight, contentHeight));
-                console.log('✅ Image added successfully');
-            } catch (e) {
-                console.error('❌ Failed to add image:', e);
+                // Try adding image with different parameters
+                pdf.addImage(
+                    imgData,           // image data
+                    'PNG',             // format
+                    margin,            // x position
+                    margin + textHeight, // y position (below text)
+                    imgWidth,          // width
+                    imgHeight,         // height
+                    undefined,         // alias
+                    'SLOW'             // compression (SLOW = better quality)
+                );
+                console.log('✅ Image added to PDF');
+            } catch (imgError) {
+                console.error('❌ Failed to add image:', imgError);
+                pdf.text('ERROR: Could not add image - ' + imgError.message, margin, margin + 20);
             }
 
             const pageNumber = 1;
-            console.log('Total pages created:', pageNumber);
-
-            // Remove test image after 3 seconds
-            setTimeout(() => {
-                if (testImg.parentNode) {
-                    document.body.removeChild(testImg);
-                }
-            }, 3000);
             
             progressFill.style.width = '100%';
             progressText.textContent = 'PDF generated successfully!';
-
-            // DEBUG: Check PDF content before saving
-            const pdfOutput = pdf.output('datauristring');
-            console.log('📄 PDF output length:', pdfOutput.length);
-            console.log('📄 PDF preview:', pdfOutput.substring(0, 100));
-            console.log('📄 PDF pages:', pdf.internal.pages);
-            console.log('📄 PDF page count:', pdf.internal.getNumberOfPages());
-
-            // Try multiple save methods
-            try {
-                // Method 1: Standard save
-                const fileName = 'document_' + new Date().getTime() + '.pdf';
-                console.log('Trying pdf.save()...');
-                pdf.save(fileName);
-                console.log('✅ pdf.save() completed');
-            } catch (saveError) {
-                console.error('❌ pdf.save() failed:', saveError);
-
-                // Method 2: Manual download
-                try {
-                    console.log('Trying manual download...');
-                    const blob = pdf.output('blob');
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'document_manual_' + new Date().getTime() + '.pdf';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    URL.revokeObjectURL(url);
-                    console.log('✅ Manual download completed');
-                } catch (manualError) {
-                    console.error('❌ Manual download failed:', manualError);
-                }
-            }
-
+            
+            // Save PDF
+            const fileName = 'document_' + new Date().getTime() + '.pdf';
+            pdf.save(fileName);
+            
             // Cleanup
             document.body.removeChild(pdfContainer);
             
