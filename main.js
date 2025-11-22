@@ -180,14 +180,30 @@ class MarkdownPDFConverter {
 
         const reader = new FileReader();
         reader.onload = (e) => {
-            const content = e.target.result;
+            let content = e.target.result;
+
+            // Remove UTF-8 BOM if present (common in Typora files)
+            if (content.charCodeAt(0) === 0xFEFF) {
+                content = content.slice(1);
+            }
+
+            // Normalize line endings (Typora may use different line endings)
+            content = content.replace(/\r\n/g, '\n');
+
             document.getElementById('markdownEditor').value = content;
             this.currentContent = content;
             this.updatePreview();
             this.updateWordCount();
-            this.showNotification(`Loaded ${file.name} successfully!`, 'success');
+            this.showNotification(`Loaded ${file.name} successfully! 📄`, 'success');
         };
-        reader.readAsText(file);
+
+        reader.onerror = (e) => {
+            console.error('Error reading file:', e);
+            this.showNotification('Error reading file. Please try again.', 'error');
+        };
+
+        // Explicitly specify UTF-8 encoding
+        reader.readAsText(file, 'UTF-8');
     }
 
     debouncePreview() {
