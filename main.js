@@ -464,6 +464,24 @@ class MarkdownPDFConverter {
                 height: Math.min(imgHeight, contentHeight)
             });
 
+            // TEST 1: Show image in browser to verify it's valid
+            const testImg = document.createElement('img');
+            testImg.src = imgData;
+            testImg.style.maxWidth = '200px';
+            testImg.style.border = '2px solid red';
+            testImg.style.position = 'fixed';
+            testImg.style.top = '10px';
+            testImg.style.right = '10px';
+            testImg.style.zIndex = '10000';
+            document.body.appendChild(testImg);
+            console.log('🖼️ Test image added to page (top-right corner)');
+
+            // TEST 2: Add text to PDF (to verify PDF generation works)
+            pdf.setFontSize(20);
+            pdf.text('TEST TEXT - Can you see this?', 20, 20);
+            console.log('📝 Added test text to PDF');
+
+            // TEST 3: Try adding the image
             try {
                 pdf.addImage(imgData, 'JPEG', margin, margin, imgWidth, Math.min(imgHeight, contentHeight));
                 console.log('✅ Image added successfully');
@@ -473,6 +491,13 @@ class MarkdownPDFConverter {
 
             const pageNumber = 1;
             console.log('Total pages created:', pageNumber);
+
+            // Remove test image after 3 seconds
+            setTimeout(() => {
+                if (testImg.parentNode) {
+                    document.body.removeChild(testImg);
+                }
+            }, 3000);
             
             progressFill.style.width = '100%';
             progressText.textContent = 'PDF generated successfully!';
