@@ -339,26 +339,31 @@ class MarkdownPDFConverter {
             const theme = this.themes[this.currentTheme];
             
             // Create a container sized for A4 with proper styling
+            // Convert mm to pixels (assuming 96 DPI: 1mm ≈ 3.7795px)
+            const mmToPx = 3.7795;
+            const containerWidth = Math.floor(210 * mmToPx); // A4 width in pixels
+            const paddingPx = Math.floor(15 * mmToPx); // 15mm padding in pixels
+
             const pdfContainer = document.createElement('div');
             pdfContainer.style.position = 'absolute';
             pdfContainer.style.left = '-99999px';
-            pdfContainer.style.width = '210mm';
-            pdfContainer.style.padding = '15mm';
+            pdfContainer.style.width = `${containerWidth}px`;
+            pdfContainer.style.padding = `${paddingPx}px`;
             pdfContainer.style.boxSizing = 'border-box';
             pdfContainer.style.backgroundColor = theme.styles.background;
             pdfContainer.style.fontFamily = theme.styles.font;
             pdfContainer.style.color = theme.styles.text;
             pdfContainer.style.lineHeight = '1.7';
-            
+
             // Apply the HTML content
             const html = marked.parse(this.currentContent);
             pdfContainer.innerHTML = this.getStyledHtmlForPDF(html, theme);
-            
+
             document.body.appendChild(pdfContainer);
-            
-            // Wait for fonts
+
+            // Wait for fonts and layout
             await document.fonts.ready;
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 200));
             
             progressFill.style.width = '50%';
             progressText.textContent = 'Capturing content...';
@@ -373,10 +378,17 @@ class MarkdownPDFConverter {
                 windowWidth: pdfContainer.scrollWidth,
                 windowHeight: pdfContainer.scrollHeight
             });
-            
+
+            // Check if canvas is valid
+            if (!canvas || canvas.width === 0 || canvas.height === 0) {
+                console.error('Canvas dimensions:', canvas ? `${canvas.width}x${canvas.height}` : 'null');
+                console.error('Container dimensions:', `${pdfContainer.scrollWidth}x${pdfContainer.scrollHeight}`);
+                throw new Error('Failed to render content to canvas. Please try again.');
+            }
+
             progressFill.style.width = '75%';
             progressText.textContent = 'Creating PDF pages...';
-            
+
             // Create PDF
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF({
@@ -405,16 +417,21 @@ class MarkdownPDFConverter {
                 if (pageNumber > 0) {
                     pdf.addPage();
                 }
-                
+
                 const sourceY = pageNumber * contentHeight * (canvas.width / imgWidth);
                 const sourceHeight = Math.min(contentHeight * (canvas.width / imgWidth), canvas.height - sourceY);
-                
+
+                // Break if we've run out of canvas content
+                if (sourceHeight <= 0 || sourceY >= canvas.height) {
+                    break;
+                }
+
                 // Create a temporary canvas for this page
                 const pageCanvas = document.createElement('canvas');
                 pageCanvas.width = canvas.width;
-                pageCanvas.height = sourceHeight;
+                pageCanvas.height = Math.ceil(sourceHeight);
                 const ctx = pageCanvas.getContext('2d');
-                
+
                 ctx.drawImage(
                     canvas,
                     0, sourceY,
@@ -422,15 +439,15 @@ class MarkdownPDFConverter {
                     0, 0,
                     canvas.width, sourceHeight
                 );
-                
+
                 const pageImgData = pageCanvas.toDataURL('image/png');
                 const pageImgHeight = (sourceHeight * imgWidth) / canvas.width;
-                
+
                 pdf.addImage(pageImgData, 'PNG', margin, margin, imgWidth, pageImgHeight);
-                
+
                 heightLeft -= contentHeight;
                 pageNumber++;
-                
+
                 const progress = 75 + (pageNumber / Math.ceil(imgHeight / contentHeight)) * 20;
                 progressFill.style.width = Math.min(progress, 95) + '%';
             }
@@ -450,7 +467,14 @@ class MarkdownPDFConverter {
             
         } catch (error) {
             console.error('Error generating PDF:', error);
-            this.showNotification('Error generating PDF. Please try again. ⚠️', 'error');
+            const errorMessage = error.message || 'Unknown error occurred';
+            this.showNotification(`Error generating PDF: ${errorMessage}`, 'error');
+
+            // Clean up container if it exists
+            const container = document.body.querySelector('div[style*="left: -99999px"]');
+            if (container) {
+                document.body.removeChild(container);
+            }
         } finally {
             // Reset UI
             setTimeout(() => {
