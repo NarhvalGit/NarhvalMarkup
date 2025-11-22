@@ -367,8 +367,10 @@ class MarkdownPDFConverter {
             const paddingPx = Math.floor(15 * mmToPx); // 15mm padding in pixels
 
             const pdfContainer = document.createElement('div');
-            pdfContainer.style.position = 'absolute';
-            pdfContainer.style.left = '-99999px';
+            // Position on-screen but invisible - fixes html2canvas rendering issues
+            pdfContainer.style.position = 'fixed';
+            pdfContainer.style.top = '0';
+            pdfContainer.style.left = '0';
             pdfContainer.style.width = `${containerWidth}px`;
             pdfContainer.style.padding = `${paddingPx}px`;
             pdfContainer.style.boxSizing = 'border-box';
@@ -376,6 +378,9 @@ class MarkdownPDFConverter {
             pdfContainer.style.fontFamily = theme.styles.font;
             pdfContainer.style.color = theme.styles.text;
             pdfContainer.style.lineHeight = '1.7';
+            pdfContainer.style.zIndex = '-1000';
+            pdfContainer.style.opacity = '0';
+            pdfContainer.style.pointerEvents = 'none';
 
             // Apply the HTML content
             const html = marked.parse(this.currentContent);
@@ -386,9 +391,9 @@ class MarkdownPDFConverter {
 
             document.body.appendChild(pdfContainer);
 
-            // Wait for fonts and layout
+            // Wait for fonts and layout to be fully ready
             await document.fonts.ready;
-            await new Promise(resolve => setTimeout(resolve, 200));
+            await new Promise(resolve => setTimeout(resolve, 500));
 
             console.log('Container dimensions after append:', {
                 scrollWidth: pdfContainer.scrollWidth,
@@ -509,7 +514,7 @@ class MarkdownPDFConverter {
             this.showNotification(`Error generating PDF: ${errorMessage}`, 'error');
 
             // Clean up container if it exists
-            const container = document.body.querySelector('div[style*="left: -99999px"]');
+            const container = document.body.querySelector('div[style*="z-index: -1000"]');
             if (container) {
                 document.body.removeChild(container);
             }
