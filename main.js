@@ -447,53 +447,58 @@ class MarkdownPDFConverter {
             const contentWidth = pageWidth - (2 * margin);
             const contentHeight = pageHeight - (2 * margin);
             
-            // Calculate scale
+            // SIMPLIFIED: Add entire canvas to PDF (testing)
+            console.log('Adding canvas to PDF...');
+            const imgData = canvas.toDataURL('image/png');
+            console.log('Image data length:', imgData.length);
+
+            // Calculate dimensions to fit on page
             const imgWidth = contentWidth;
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
-            
-            let heightLeft = imgHeight;
-            let position = 0;
-            let pageNumber = 0;
-            
-            // Add pages
-            while (heightLeft > 0) {
-                if (pageNumber > 0) {
-                    pdf.addPage();
+
+            console.log('PDF dimensions:', {imgWidth, imgHeight, contentHeight});
+
+            // If content fits on one page
+            if (imgHeight <= contentHeight) {
+                console.log('Single page PDF');
+                pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
+            } else {
+                // Multiple pages needed
+                console.log('Multi-page PDF needed');
+                let heightLeft = imgHeight;
+                let position = 0;
+                let pageNum = 0;
+
+                while (heightLeft > 0) {
+                    if (pageNum > 0) {
+                        pdf.addPage();
+                    }
+
+                    const pageHeight = Math.min(contentHeight, heightLeft);
+                    const sourceY = position;
+                    const sourceHeight = (pageHeight * canvas.width) / imgWidth;
+
+                    console.log(`Page ${pageNum}:`, {sourceY, sourceHeight, pageHeight});
+
+                    // Create temp canvas for this page slice
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = canvas.width;
+                    tempCanvas.height = sourceHeight;
+                    const tempCtx = tempCanvas.getContext('2d');
+
+                    tempCtx.drawImage(canvas, 0, sourceY, canvas.width, sourceHeight, 0, 0, canvas.width, sourceHeight);
+
+                    const pageImg = tempCanvas.toDataURL('image/png');
+                    pdf.addImage(pageImg, 'PNG', margin, margin, imgWidth, pageHeight);
+
+                    heightLeft -= contentHeight;
+                    position += sourceHeight;
+                    pageNum++;
                 }
-
-                const sourceY = pageNumber * contentHeight * (canvas.width / imgWidth);
-                const sourceHeight = Math.min(contentHeight * (canvas.width / imgWidth), canvas.height - sourceY);
-
-                // Break if we've run out of canvas content
-                if (sourceHeight <= 0 || sourceY >= canvas.height) {
-                    break;
-                }
-
-                // Create a temporary canvas for this page
-                const pageCanvas = document.createElement('canvas');
-                pageCanvas.width = canvas.width;
-                pageCanvas.height = Math.ceil(sourceHeight);
-                const ctx = pageCanvas.getContext('2d');
-
-                ctx.drawImage(
-                    canvas,
-                    0, sourceY,
-                    canvas.width, sourceHeight,
-                    0, 0,
-                    canvas.width, sourceHeight
-                );
-
-                const pageImgData = pageCanvas.toDataURL('image/png');
-                const pageImgHeight = (sourceHeight * imgWidth) / canvas.width;
-
-                pdf.addImage(pageImgData, 'PNG', margin, margin, imgWidth, pageImgHeight);
-
-                heightLeft -= contentHeight;
-                pageNumber++;
-
-                const progress = 75 + (pageNumber / Math.ceil(imgHeight / contentHeight)) * 20;
-                progressFill.style.width = Math.min(progress, 95) + '%';
             }
+
+            const pageNumber = pdf.internal.pages.length - 1;
+            console.log('Total pages created:', pageNumber);
             
             progressFill.style.width = '100%';
             progressText.textContent = 'PDF generated successfully!';
