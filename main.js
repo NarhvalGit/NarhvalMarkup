@@ -335,11 +335,17 @@ class MarkdownPDFConverter {
             return;
         }
 
+        // Debug: Log content info
+        console.log('=== PDF Generation Debug ===');
+        console.log('Content length:', this.currentContent.length);
+        console.log('First 100 chars:', this.currentContent.substring(0, 100));
+        console.log('Content from editor:', document.getElementById('markdownEditor').value.length);
+
         const button = document.getElementById('generatePdfBtn');
         const progressContainer = document.getElementById('progressContainer');
         const progressFill = document.getElementById('progressFill');
         const progressText = document.getElementById('progressText');
-        
+
         // Show progress
         button.disabled = true;
         button.innerHTML = `
@@ -373,6 +379,9 @@ class MarkdownPDFConverter {
 
             // Apply the HTML content
             const html = marked.parse(this.currentContent);
+            console.log('Parsed HTML length:', html.length);
+            console.log('First 200 chars of HTML:', html.substring(0, 200));
+
             pdfContainer.innerHTML = this.getStyledHtmlForPDF(html, theme);
 
             document.body.appendChild(pdfContainer);
@@ -380,19 +389,32 @@ class MarkdownPDFConverter {
             // Wait for fonts and layout
             await document.fonts.ready;
             await new Promise(resolve => setTimeout(resolve, 200));
-            
+
+            console.log('Container dimensions after append:', {
+                scrollWidth: pdfContainer.scrollWidth,
+                scrollHeight: pdfContainer.scrollHeight,
+                offsetWidth: pdfContainer.offsetWidth,
+                offsetHeight: pdfContainer.offsetHeight
+            });
+
             progressFill.style.width = '50%';
             progressText.textContent = 'Capturing content...';
-            
+
             // Render the entire content to canvas
             const canvas = await html2canvas(pdfContainer, {
                 scale: 2,
                 useCORS: true,
                 allowTaint: true,
                 backgroundColor: theme.styles.background,
-                logging: false,
+                logging: true,
                 windowWidth: pdfContainer.scrollWidth,
                 windowHeight: pdfContainer.scrollHeight
+            });
+
+            console.log('Canvas rendered:', {
+                width: canvas.width,
+                height: canvas.height,
+                dataURL: canvas.toDataURL('image/png').substring(0, 100)
             });
 
             // Check if canvas is valid
