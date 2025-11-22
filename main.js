@@ -330,6 +330,42 @@ class MarkdownPDFConverter {
     }
 
     async generatePDF() {
+        console.log('=== ABSOLUTE MINIMAL jsPDF TEST ===');
+
+        try {
+            const { jsPDF } = window.jspdf;
+            console.log('1. jsPDF loaded:', typeof jsPDF, jsPDF);
+
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            });
+            console.log('2. PDF instance created');
+
+            // Add simple text
+            pdf.setFontSize(16);
+            pdf.text('MINIMAL TEST - Can you see this?', 20, 20);
+            pdf.text('Line 2 - Hello World', 20, 40);
+            pdf.text('Line 3 - Testing 123', 20, 60);
+            console.log('3. Text added');
+
+            // Save
+            const fileName = 'MINIMAL_TEST.pdf';
+            pdf.save(fileName);
+            console.log('4. PDF saved as:', fileName);
+
+            this.showNotification('Minimal test PDF saved - check if you can see the text!', 'success');
+            return;
+
+        } catch (error) {
+            console.error('MINIMAL TEST ERROR:', error);
+            this.showNotification('Error: ' + error.message, 'error');
+        }
+
+        return; // Stop here for testing
+
+        // === ORIGINAL CODE DISABLED FOR TESTING ===
         if (!this.currentContent.trim()) {
             this.showNotification('Please enter some markdown content first.', 'warning');
             return;
