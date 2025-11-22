@@ -447,61 +447,31 @@ class MarkdownPDFConverter {
             const contentWidth = pageWidth - (2 * margin);
             const contentHeight = pageHeight - (2 * margin);
             
-            // SIMPLIFIED: Add entire canvas to PDF (testing)
-            console.log('Adding canvas to PDF...');
-            const imgData = canvas.toDataURL('image/png');
+            // ULTRA SIMPLE TEST: Just add the whole canvas directly
+            console.log('=== SIMPLE TEST: Adding full canvas to PDF ===');
+            const imgData = canvas.toDataURL('image/jpeg', 0.95); // Try JPEG instead of PNG
             console.log('Image data length:', imgData.length);
+            console.log('Image data preview:', imgData.substring(0, 100));
 
-            // Calculate dimensions to fit on page
+            // Just fit it on one page, let it overflow if needed
             const imgWidth = contentWidth;
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-            console.log('PDF dimensions:', {imgWidth, imgHeight, contentHeight});
+            console.log('Adding image at:', {
+                x: margin,
+                y: margin,
+                width: imgWidth,
+                height: Math.min(imgHeight, contentHeight)
+            });
 
-            // If content fits on one page
-            if (imgHeight <= contentHeight) {
-                console.log('Single page PDF');
-                pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
-            } else {
-                // Multiple pages needed
-                console.log('Multi-page PDF needed');
-                let heightLeft = imgHeight;
-                let position = 0;
-                let pageNum = 0;
-
-                while (heightLeft > 0) {
-                    if (pageNum > 0) {
-                        pdf.addPage();
-                    }
-
-                    const pageHeight = Math.min(contentHeight, heightLeft);
-                    const sourceY = position;
-                    const sourceHeight = (pageHeight * canvas.width) / imgWidth;
-
-                    console.log(`Page ${pageNum}:`, {sourceY, sourceHeight, pageHeight});
-
-                    // Create temp canvas for this page slice
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = canvas.width;
-                    tempCanvas.height = Math.ceil(sourceHeight); // Must be integer!
-                    const tempCtx = tempCanvas.getContext('2d');
-
-                    // Fill with white background first (prevents transparency issues)
-                    tempCtx.fillStyle = theme.styles.background;
-                    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-
-                    tempCtx.drawImage(canvas, 0, Math.floor(sourceY), canvas.width, Math.ceil(sourceHeight), 0, 0, canvas.width, Math.ceil(sourceHeight));
-
-                    const pageImg = tempCanvas.toDataURL('image/png');
-                    pdf.addImage(pageImg, 'PNG', margin, margin, imgWidth, pageHeight);
-
-                    heightLeft -= contentHeight;
-                    position += sourceHeight;
-                    pageNum++;
-                }
+            try {
+                pdf.addImage(imgData, 'JPEG', margin, margin, imgWidth, Math.min(imgHeight, contentHeight));
+                console.log('✅ Image added successfully');
+            } catch (e) {
+                console.error('❌ Failed to add image:', e);
             }
 
-            const pageNumber = pdf.internal.pages.length - 1;
+            const pageNumber = 1;
             console.log('Total pages created:', pageNumber);
             
             progressFill.style.width = '100%';
