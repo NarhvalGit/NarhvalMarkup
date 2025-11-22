@@ -501,11 +501,42 @@ class MarkdownPDFConverter {
             
             progressFill.style.width = '100%';
             progressText.textContent = 'PDF generated successfully!';
-            
-            // Save PDF
-            const fileName = 'document_' + new Date().getTime() + '.pdf';
-            pdf.save(fileName);
-            
+
+            // DEBUG: Check PDF content before saving
+            const pdfOutput = pdf.output('datauristring');
+            console.log('📄 PDF output length:', pdfOutput.length);
+            console.log('📄 PDF preview:', pdfOutput.substring(0, 100));
+            console.log('📄 PDF pages:', pdf.internal.pages);
+            console.log('📄 PDF page count:', pdf.internal.getNumberOfPages());
+
+            // Try multiple save methods
+            try {
+                // Method 1: Standard save
+                const fileName = 'document_' + new Date().getTime() + '.pdf';
+                console.log('Trying pdf.save()...');
+                pdf.save(fileName);
+                console.log('✅ pdf.save() completed');
+            } catch (saveError) {
+                console.error('❌ pdf.save() failed:', saveError);
+
+                // Method 2: Manual download
+                try {
+                    console.log('Trying manual download...');
+                    const blob = pdf.output('blob');
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'document_manual_' + new Date().getTime() + '.pdf';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+                    console.log('✅ Manual download completed');
+                } catch (manualError) {
+                    console.error('❌ Manual download failed:', manualError);
+                }
+            }
+
             // Cleanup
             document.body.removeChild(pdfContainer);
             
