@@ -483,10 +483,14 @@ class MarkdownPDFConverter {
                     // Create temp canvas for this page slice
                     const tempCanvas = document.createElement('canvas');
                     tempCanvas.width = canvas.width;
-                    tempCanvas.height = sourceHeight;
+                    tempCanvas.height = Math.ceil(sourceHeight); // Must be integer!
                     const tempCtx = tempCanvas.getContext('2d');
 
-                    tempCtx.drawImage(canvas, 0, sourceY, canvas.width, sourceHeight, 0, 0, canvas.width, sourceHeight);
+                    // Fill with white background first (prevents transparency issues)
+                    tempCtx.fillStyle = theme.styles.background;
+                    tempCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+                    tempCtx.drawImage(canvas, 0, Math.floor(sourceY), canvas.width, Math.ceil(sourceHeight), 0, 0, canvas.width, Math.ceil(sourceHeight));
 
                     const pageImg = tempCanvas.toDataURL('image/png');
                     pdf.addImage(pageImg, 'PNG', margin, margin, imgWidth, pageHeight);
