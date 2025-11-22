@@ -455,28 +455,37 @@ class MarkdownPDFConverter {
             pdf.setTextColor(255, 0, 0); // Red color so it's obvious
             pdf.text('=== YOUR MARKDOWN CONTENT BELOW ===', margin, margin + 5);
 
-            // Add the canvas image below the text
-            const imgData = canvas.toDataURL('image/png', 1.0);
-            console.log('Canvas as PNG, length:', imgData.length);
+            // Try JPEG with lower quality - maybe PNG is too big
+            const imgData = canvas.toDataURL('image/jpeg', 0.7);
+            console.log('Canvas as JPEG (0.7 quality), length:', imgData.length);
 
             // Calculate how much space we need
             const textHeight = 10; // Space for our test text
             const availableHeight = contentHeight - textHeight;
             const imgHeight = Math.min((canvas.height * imgWidth) / canvas.width, availableHeight);
 
+            console.log('Trying to add image:', {
+                format: 'JPEG',
+                x: margin,
+                y: margin + textHeight,
+                width: imgWidth,
+                height: imgHeight,
+                dataLength: imgData.length
+            });
+
             try {
-                // Try adding image with different parameters
+                // Try JPEG without compression parameter
                 pdf.addImage(
                     imgData,           // image data
-                    'PNG',             // format
+                    'JPEG',            // format - try JPEG instead of PNG
                     margin,            // x position
                     margin + textHeight, // y position (below text)
                     imgWidth,          // width
-                    imgHeight,         // height
-                    undefined,         // alias
-                    'SLOW'             // compression (SLOW = better quality)
+                    imgHeight          // height
+                    // No compression parameter - let jsPDF decide
                 );
                 console.log('✅ Image added to PDF');
+                pdf.text('^ Image should be above this text', margin, margin + textHeight + imgHeight + 5);
             } catch (imgError) {
                 console.error('❌ Failed to add image:', imgError);
                 pdf.text('ERROR: Could not add image - ' + imgError.message, margin, margin + 20);
