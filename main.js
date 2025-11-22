@@ -335,12 +335,6 @@ class MarkdownPDFConverter {
             return;
         }
 
-        // Debug: Log content info
-        console.log('=== PDF Generation Debug ===');
-        console.log('Content length:', this.currentContent.length);
-        console.log('First 100 chars:', this.currentContent.substring(0, 100));
-        console.log('Content from editor:', document.getElementById('markdownEditor').value.length);
-
         const button = document.getElementById('generatePdfBtn');
         const progressContainer = document.getElementById('progressContainer');
         const progressFill = document.getElementById('progressFill');
@@ -355,167 +349,63 @@ class MarkdownPDFConverter {
         progressContainer.classList.remove('hidden');
 
         try {
-            progressFill.style.width = '20%';
+            progressFill.style.width = '30%';
             progressText.textContent = 'Preparing content...';
-            
+
             const theme = this.themes[this.currentTheme];
-            
-            // Create a container sized for A4 with proper styling
-            // Convert mm to pixels (assuming 96 DPI: 1mm ≈ 3.7795px)
-            const mmToPx = 3.7795;
-            const containerWidth = Math.floor(210 * mmToPx); // A4 width in pixels
-            const paddingPx = Math.floor(15 * mmToPx); // 15mm padding in pixels
 
-            const pdfContainer = document.createElement('div');
-            // Position on-screen but invisible - fixes html2canvas rendering issues
-            pdfContainer.style.position = 'fixed';
-            pdfContainer.style.top = '0';
-            pdfContainer.style.left = '0';
-            pdfContainer.style.width = `${containerWidth}px`;
-            pdfContainer.style.padding = `${paddingPx}px`;
-            pdfContainer.style.boxSizing = 'border-box';
-            pdfContainer.style.backgroundColor = theme.styles.background;
-            pdfContainer.style.fontFamily = theme.styles.font;
-            pdfContainer.style.color = theme.styles.text;
-            pdfContainer.style.lineHeight = '1.7';
-            pdfContainer.style.zIndex = '-1000';
-            pdfContainer.style.opacity = '0';
-            pdfContainer.style.pointerEvents = 'none';
-
-            // Apply the HTML content
+            // Parse markdown to HTML
             const html = marked.parse(this.currentContent);
-            console.log('Parsed HTML length:', html.length);
-            console.log('First 200 chars of HTML:', html.substring(0, 200));
+            const styledHtml = this.getStyledHtmlForPDF(html, theme);
 
-            pdfContainer.innerHTML = this.getStyledHtmlForPDF(html, theme);
+            // Create temporary element for PDF generation
+            const element = document.createElement('div');
+            element.innerHTML = styledHtml;
+            element.style.width = '210mm';
+            element.style.padding = '15mm';
+            element.style.boxSizing = 'border-box';
+            element.style.backgroundColor = theme.styles.background;
+            element.style.fontFamily = theme.styles.font;
+            element.style.color = theme.styles.text;
+            element.style.lineHeight = '1.7';
 
-            document.body.appendChild(pdfContainer);
+            progressFill.style.width = '60%';
+            progressText.textContent = 'Generating PDF...';
 
-            // Wait for fonts and layout to be fully ready
-            await document.fonts.ready;
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Use html2pdf.js - handles HTML to PDF correctly!
+            const opt = {
+                margin: 15,
+                filename: 'document_' + new Date().getTime() + '.pdf',
+                image: { type: 'jpeg', quality: 0.95 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    letterRendering: true,
+                    backgroundColor: theme.styles.background
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait'
+                },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
 
-            console.log('Container dimensions after append:', {
-                scrollWidth: pdfContainer.scrollWidth,
-                scrollHeight: pdfContainer.scrollHeight,
-                offsetWidth: pdfContainer.offsetWidth,
-                offsetHeight: pdfContainer.offsetHeight
-            });
+            progressFill.style.width = '90%';
+            progressText.textContent = 'Creating PDF file...';
 
-            progressFill.style.width = '50%';
-            progressText.textContent = 'Capturing content...';
+            // Generate and save PDF
+            await html2pdf().set(opt).from(element).save();
 
-            // Render the entire content to canvas
-            const canvas = await html2canvas(pdfContainer, {
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                backgroundColor: theme.styles.background,
-                logging: true,
-                windowWidth: pdfContainer.scrollWidth,
-                windowHeight: pdfContainer.scrollHeight
-            });
-
-            console.log('Canvas rendered:', {
-                width: canvas.width,
-                height: canvas.height,
-                dataURL: canvas.toDataURL('image/png').substring(0, 100)
-            });
-
-            // Check if canvas is valid
-            if (!canvas || canvas.width === 0 || canvas.height === 0) {
-                console.error('Canvas dimensions:', canvas ? `${canvas.width}x${canvas.height}` : 'null');
-                console.error('Container dimensions:', `${pdfContainer.scrollWidth}x${pdfContainer.scrollHeight}`);
-                throw new Error('Failed to render content to canvas. Please try again.');
-            }
-
-            progressFill.style.width = '75%';
-            progressText.textContent = 'Creating PDF pages...';
-
-            // Create PDF
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
-            
-            // A4 dimensions
-            const pageWidth = 210;
-            const pageHeight = 297;
-            const margin = 15;
-            const contentWidth = pageWidth - (2 * margin);
-            const contentHeight = pageHeight - (2 * margin);
-            
-            // Calculate scale
-            const imgWidth = contentWidth;
-
-            // TEST: Add visible text first (we know this works)
-            pdf.setFontSize(12);
-            pdf.setTextColor(255, 0, 0); // Red color so it's obvious
-            pdf.text('=== YOUR MARKDOWN CONTENT BELOW ===', margin, margin + 5);
-
-            // Try JPEG with lower quality - maybe PNG is too big
-            const imgData = canvas.toDataURL('image/jpeg', 0.7);
-            console.log('Canvas as JPEG (0.7 quality), length:', imgData.length);
-
-            // Calculate how much space we need
-            const textHeight = 10; // Space for our test text
-            const availableHeight = contentHeight - textHeight;
-            const imgHeight = Math.min((canvas.height * imgWidth) / canvas.width, availableHeight);
-
-            console.log('Trying to add image:', {
-                format: 'JPEG',
-                x: margin,
-                y: margin + textHeight,
-                width: imgWidth,
-                height: imgHeight,
-                dataLength: imgData.length
-            });
-
-            try {
-                // Try JPEG without compression parameter
-                pdf.addImage(
-                    imgData,           // image data
-                    'JPEG',            // format - try JPEG instead of PNG
-                    margin,            // x position
-                    margin + textHeight, // y position (below text)
-                    imgWidth,          // width
-                    imgHeight          // height
-                    // No compression parameter - let jsPDF decide
-                );
-                console.log('✅ Image added to PDF');
-                pdf.text('^ Image should be above this text', margin, margin + textHeight + imgHeight + 5);
-            } catch (imgError) {
-                console.error('❌ Failed to add image:', imgError);
-                pdf.text('ERROR: Could not add image - ' + imgError.message, margin, margin + 20);
-            }
-
-            const pageNumber = 1;
-            
             progressFill.style.width = '100%';
             progressText.textContent = 'PDF generated successfully!';
-            
-            // Save PDF
-            const fileName = 'document_' + new Date().getTime() + '.pdf';
-            pdf.save(fileName);
-            
-            // Cleanup
-            document.body.removeChild(pdfContainer);
-            
-            this.showNotification(`PDF with ${pageNumber} page(s) generated! 📄`, 'success');
+
+            this.showNotification('PDF generated successfully! 📄', 'success');
             this.updateConversionStats();
-            
+
         } catch (error) {
             console.error('Error generating PDF:', error);
-            const errorMessage = error.message || 'Unknown error occurred';
-            this.showNotification(`Error generating PDF: ${errorMessage}`, 'error');
-
-            // Clean up container if it exists
-            const container = document.body.querySelector('div[style*="z-index: -1000"]');
-            if (container) {
-                document.body.removeChild(container);
-            }
+            this.showNotification(`Error generating PDF: ${error.message}`, 'error');
         } finally {
             // Reset UI
             setTimeout(() => {
